@@ -28,13 +28,14 @@ int main (int argc, char **argv){
         map[0][k] = 'X';
         map[N][k] = 'X';
     }
-
     for(int i = 0; i<=N; i++){
         for(int k = 0; k<=M; k++){
             putchar(map[i][k]);
-        }
+       }
         putchar('\n');
     }
+
+
     fclose(file);
     return 0;
 }
