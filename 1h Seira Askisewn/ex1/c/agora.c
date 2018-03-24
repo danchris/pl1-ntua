@@ -33,10 +33,15 @@ int main (int argc, char **argv){
      * and maximum prime value of array if exists
      */
 
+    long long int lcm = 0, other = -1;
     while((fscanf(file,"%lld", &villages[i])) == 1){
         if(villages[i] > max){
             max = villages[i];
             maxVillage = i;
+        }
+        if(i==1) lcm = villages[0];
+        if(i) {
+            lcm =( ((villages[i]*lcm)) / (gcd(villages[i],lcm)) );
         }
         if(isPrime(villages[i])){
             if(villages[i] > maxPrimeValue){
@@ -47,7 +52,7 @@ int main (int argc, char **argv){
         i++;
     }
 
-    long long int lcm = findlcm(villages,N,-1), other = -1;     //calculate lcm of array
+//    long long int lcm = findlcm(villages,N,-1), other = -1;     //calculate lcm of array
     int v = -1, otherP = -1, otherV = -1;
 
     /*
