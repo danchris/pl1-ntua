@@ -2,9 +2,9 @@
 #include <stdlib.h>
 
 
-int isPrime (long long int num);
-long long int findlcm (long long int arr[], int n, int e);
-long long int gcd (long long int a, long long int b);
+static int isPrime (long long int num);
+static long long int findlcm (long long int arr[], int n, int e);
+static long long int gcd (long long int a, long long int b);
 
 int main (int argc, char **argv){
 
@@ -52,9 +52,9 @@ int main (int argc, char **argv){
         i++;
     }
 
+    fclose(file);
 //    long long int lcm = findlcm(villages,N,-1), other = -1;     //calculate lcm of array
     int v = -1, otherP = -1, otherV = -1;
-
     /*
      * If exists prime calculate lcm again with it
      * or calculate lcm without biggest element
@@ -69,20 +69,18 @@ int main (int argc, char **argv){
         otherV = maxVillage;
     }
 
+
     if (other!= -1 && other < lcm){
         lcm = other;
         v = ( otherP > otherV ? otherP : otherV);
     }
-
     printf("%lld %d\n", lcm, v+1);
-
     free(villages);
-    fclose(file);
 
     return 0;
 }
 
-int isPrime(long long int num){
+static int isPrime(long long int num){
 
     if (num <= 1) return 0;
     if (num % 2 == 0 && num > 2) return 0;
@@ -94,7 +92,7 @@ int isPrime(long long int num){
     return 1;
 }
 
-long long int gcd(long long int a, long long int b){
+static long long int gcd(long long int a, long long int b){
 
 
     if (b==0) return a;
@@ -102,7 +100,7 @@ long long int gcd(long long int a, long long int b){
     return gcd(b,a%b);
 }
 
-long long int findlcm(long long int arr[], int n, int e){
+static long long int findlcm(long long int arr[], int n, int e){
 
     long long int ans = arr[0];
 
@@ -113,3 +111,4 @@ long long int findlcm(long long int arr[], int n, int e){
 
     return ans;
 }
+
