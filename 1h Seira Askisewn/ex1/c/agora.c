@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 
-static int isPrime (long long int num);
+int isPrime (long long int num);
 static long long int findlcm (long long int arr[], int n, int e);
 static long long int gcd (long long int a, long long int b);
 
@@ -33,15 +33,10 @@ int main (int argc, char **argv){
      * and maximum prime value of array if exists
      */
 
-    long long int lcm = 0, other = -1;
     while((fscanf(file,"%lld", &villages[i])) == 1){
         if(villages[i] > max){
             max = villages[i];
             maxVillage = i;
-        }
-        if(i==1) lcm = villages[0];
-        if(i) {
-            lcm =( ((villages[i]*lcm)) / (gcd(villages[i],lcm)) );
         }
         if(isPrime(villages[i])){
             if(villages[i] > maxPrimeValue){
@@ -53,7 +48,7 @@ int main (int argc, char **argv){
     }
 
     fclose(file);
-//    long long int lcm = findlcm(villages,N,-1), other = -1;     //calculate lcm of array
+    long long int lcm = findlcm(villages,N,-1), other = -1;     //calculate lcm of array
     int v = -1, otherP = -1, otherV = -1;
     /*
      * If exists prime calculate lcm again with it
@@ -80,7 +75,7 @@ int main (int argc, char **argv){
     return 0;
 }
 
-static int isPrime(long long int num){
+int isPrime(long long int num){
 
     if (num <= 1) return 0;
     if (num % 2 == 0 && num > 2) return 0;
@@ -106,7 +101,11 @@ static long long int findlcm(long long int arr[], int n, int e){
 
     for (int i = 1; i < n; i++){
         if (i == e) continue;
-        ans = ( ((arr[i]*ans)) / (gcd(arr[i],ans)) );
+        if( ans > arr[i]) {
+            ans = (ans/gcd(ans,arr[i]))*arr[i];
+        }
+        else ans = (arr[i]/gcd(ans,arr[i]))*ans;
+      //  ans = ( ((arr[i]*ans)) / (gcd(arr[i],ans)) );
     }
 
     return ans;
