@@ -63,6 +63,7 @@ int main (int argc, char **argv){
 
     if(tempM!=-1 && flag==1) printf("%ld %d\n", tempM, tempV);
     else printf("%ld %d\n", min, v);
+
     fclose(file);
     free(villages);
     free(runningLcm);
