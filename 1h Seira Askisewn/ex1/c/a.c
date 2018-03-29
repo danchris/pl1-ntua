@@ -2,6 +2,6 @@
 #include <limits.h>
 
 int main () {
-    printf("%lld\n", ULLONG_MAX);
+    printf("%ld\n", LONG_MAX);
     return 0;
 }
