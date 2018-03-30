@@ -21,32 +21,43 @@ int main (int argc, char **argv){
 
     FILE *file = fopen(argv[1],"r");
 
-   int N;
+    int N;
     if(fscanf(file, "%d", &N)==0){
         printf("Failed to read\n");
         fclose(file);
         exit(1);
     }
 
-   int i = 0;
-   int *villages = malloc(N*sizeof(int));
-   long int *runningLcm = malloc(N*sizeof(long int)), *runningLcmReverse = malloc(N*sizeof(long int));
+    int i = 0;
+    int *villages = malloc(N*sizeof(int));
+    long int *runningLcm = malloc(N*sizeof(long int)), *runningLcmReverse = malloc(N*sizeof(long int));
 
 
-   long int temp;
-    while((fscanf(file,"%d", &villages[i])) == 1) i++;
+    /* Read from file
+     * and store data to
+     * villages int array
+     */
+
+    while((fscanf(file,"%d", &villages[i++])) == 1);
+
+    fclose(file);
+
+    /*
+     * Now we will compute
+     * runnings LCM
+     *
+     */
+
     runningLcm[0] = villages[0];
     runningLcmReverse[N-1] = villages[N-1];
 
     for(i=1;i<N;i++){
-        temp = findlcm(runningLcm[i-1],villages[i]);
-        runningLcm[i] = temp;
-        temp = findlcm(runningLcmReverse[N-i],villages[N-i-1]);
-        runningLcmReverse[N-i-1] = temp;
+        runningLcm[i] = findlcm(runningLcm[i-1],villages[i]);
+        runningLcmReverse[N-i-1] = findlcm(runningLcmReverse[N-i],villages[N-i-1]);
     }
 
-   long int min = runningLcm[N-1], tempM = -1;
-   int v = 0, flag = 0, tempV = 0;
+    long int min = runningLcm[N-1], temp, tempM = -1;
+    int v = 0, flag = 0, tempV = 0;
 
     for(i=1; i<N-1; i++){
         if(runningLcm[i-1] == runningLcmReverse[i+1]) {
@@ -54,17 +65,18 @@ int main (int argc, char **argv){
             tempM = runningLcm[i-1];
             flag++;
         }
-        temp = findlcm(runningLcm[i-1],runningLcmReverse[i+1]);
-        if(temp<min && temp>0){
-            min = temp;
-            v = i+1;
+        else {
+            temp = findlcm(runningLcm[i-1],runningLcmReverse[i+1]);
+            if(temp<min && temp>0){
+                min = temp;
+                v = i+1;
+            }
         }
     }
 
     if(tempM!=-1 && flag==1) printf("%ld %d\n", tempM, tempV);
     else printf("%ld %d\n", min, v);
 
-    fclose(file);
     free(villages);
     free(runningLcm);
     free(runningLcmReverse);
@@ -86,30 +98,3 @@ long int findlcm (long int a, long int b){
     return  a*(b/gcd(a,b));
 }
 
-int cmpfunc (const void * a, const void * b){
-    if( *( int*)a - *( int*)b < 0 )
-        return -1;
-    if( *( int*)a - *( int*)b > 0 )
-        return 1;
-    return 0;
-}
-
-int cmpfuncRev (const void * a, const void * b){
-    return !cmpfunc(a,b);
-}
-long mul64( int x,  int y) {
-    return (long)x*(long)y;
-}
-long safemult( int a,  int b) {
-    double dx;
-
-    dx = (double)a * (double)b;
-
-    if ( fabs(dx) < (double)9007199254740992 )
-        return (long)dx;
-
-    if ( (long)LONG_MAX < fabs(dx) )
-        return LONG_MAX;
-
-    return a*b;
-}
