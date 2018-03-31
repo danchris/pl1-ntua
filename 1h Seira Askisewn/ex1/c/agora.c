@@ -1,17 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <math.h>
 
 
 long int findlcm (long int a, long int b);
 int gcd (long int a, long int b);
-int cmpfunc (const void * a, const void * b);
-int cmpfuncRev (const void * a, const void * b);
-long mul64( int x, int  y);
 
-long safemult(int a, int b);
 int main (int argc, char **argv){
 
     if (argc < 2) {
