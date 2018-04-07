@@ -1,0 +1,338 @@
+fun doomsday file = 
+let
+
+ 
+  val q = Queue.mkQueue () : (char*int*int*int) Queue.queue
+  
+  fun linelist file = 
+  let 
+    val instr = TextIO.openIn file
+    val str =   TextIO.inputAll instr
+  in
+    String.tokens (fn x => x = #"\n")str before TextIO.closeIn instr
+  end
+
+  val doomsMapList = linelist file
+  val doomsMap = Array2.fromList (map explode doomsMapList)
+  val n = Array2.nRows(doomsMap)
+  val m = Array2.nCols(doomsMap)
+  
+  fun createQueue (doomsMap,i,j) =
+    if(i=n) then q
+    else
+      let 
+        val el = Array2.sub(doomsMap,i,j)
+  in
+    (if(el <> #"X" andalso el <> #".") then 
+      let
+        val _ = Queue.enqueue(q,(el,i,j,0))
+      in 
+        true
+      end
+    else false);
+    if ( (j+1) < m) then createQueue (doomsMap,i,j+1)
+    else createQueue (doomsMap,i+1,0)
+  end
+ 
+  
+  val q = createQueue (doomsMap,0,0)
+  fun createList (doomsMap,i,j) =
+    if(i=n) then []
+    else
+      let 
+        val el = Array2.sub(doomsMap,i,j)
+  in
+    if(el <> #"X" andalso el <> #".") then
+      if((j+1)<m) then (el,i,j,0)::(createList (doomsMap, i, j+1))
+      else (el,i,j,0)::(createList (doomsMap,i+1,0))
+      else 
+        if((j+1)<m) then createList (doomsMap, i, j+1)
+        else createList (doomsMap,i+1,0)
+  end
+  
+  (*
+  fun remv(L, (a,b,c)) =
+    if null(L) then nil
+    else if (a,b,c)=hd(L) then remv(tl(L), (a,b,c))
+    else hd(L)::remv(tl(L), (a,b,c));
+    *)
+  val currentList = createList (doomsMap, 0, 0)
+
+
+  fun goUp (doomsMap,a,i,j) = 
+    (if(i>0) then
+      if(Array2.sub(doomsMap,i-1,j) = #".") then 
+        let
+          val _ = Array2.update(doomsMap,i-1,j,a)
+      in 
+        1
+      end
+      else if(Array2.sub(doomsMap,i-1,j) <> #"X" andalso
+      Array2.sub(doomsMap,i-1,j) <> a) then 
+        let 
+          val _ = Array2.update(doomsMap,i-1,j,#"*")
+        in
+          ~1
+        end
+        else 0
+    else 0
+    )
+
+  fun goDown (doomsMap,a,i,j) = 
+    (if(i<(n-1)) then
+      if(Array2.sub(doomsMap,i+1,j) = #".") then 
+        let
+          val _ = Array2.update(doomsMap,i+1,j,a)
+        in 
+          1
+        end
+      else if(Array2.sub(doomsMap,i+1,j) <> #"X" andalso
+      Array2.sub(doomsMap,i+1,j) <> a) then 
+        let 
+          val _ = Array2.update(doomsMap,i+1,j,#"*")
+        in
+          ~1
+        end
+        else 0
+    else 0
+    )
+
+  fun goRight (doomsMap,a,i,j) = 
+    (if(j<(m-1)) then
+      if(Array2.sub(doomsMap,i,j+1) = #".") then 
+        let
+          val _ = Array2.update(doomsMap,i,j+1,a)
+        in 
+          1
+        end
+      else if(Array2.sub(doomsMap,i,j+1) <> #"X" andalso
+      Array2.sub(doomsMap,i,j+1) <> a) then 
+        let 
+          val _ = Array2.update(doomsMap,i,j+1,#"*")
+        in
+          ~1
+        end
+        else 0
+    else 0
+    )
+
+  fun goLeft (doomsMap,a,i,j) = 
+    (if(j>0) then
+      if(Array2.sub(doomsMap,i,j-1) = #".") then 
+        let
+          val _ = Array2.update(doomsMap,i,j-1,a)
+        in 
+          1
+        end
+      else if(Array2.sub(doomsMap,i,j-1) <> #"X" andalso
+      Array2.sub(doomsMap,i,j-1) <> a) then 
+        let 
+          val _ = Array2.update(doomsMap,i,j-1,#"*")
+        in
+          ~1
+        end
+        else 0
+    else 0
+    )
+
+  fun examNeighbours (doomsMap,a,i,j) = 
+    let 
+      val up = goUp (doomsMap,a,i,j)
+      val right = goRight (doomsMap,a,i,j)
+      val down = goDown (doomsMap,a,i,j)
+      val left = goLeft (doomsMap,a,i,j)
+    in
+            (up,down,right,left)
+    end
+
+    
+   (*     fun cpQ quu = 
+          if (Queue.isEmpty qu = true) then newQ 
+          else 
+            let
+                val _ = Queue.enqueue(newQ,Queue.dequeue quu)
+            in
+                cpQ qu
+            end
+        val newQ = cpQ qu
+        *)   
+  fun solver (qu,t) = 
+    if (Queue.isEmpty qu = true) then false
+    else
+      let
+        val (a,i,j,dt) = Queue.dequeue qu
+        val (u,d,r,l) = examNeighbours (doomsMap,a,i,j) 
+        val newQ = Queue.mkQueue () : (char*int*int*int) Queue.queue
+
+      in
+        if ( u = ~1 orelse d = ~1 orelse r = ~1 orelse l = ~1) then true
+        else 
+        (  
+        if ( u = 1 ) then 
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i-1,j),i-1,j,dt+1))
+          in
+            print("yp");
+            true
+        end
+        else false
+        );
+        (
+        if ( d = 1 ) then 
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i+1,j),i+1,j,dt+1))
+          in
+            true
+        end
+        else false
+        );
+        (
+        if ( r = 1 ) then ( 
+            Queue.enqueue(newQ,(Array2.sub(doomsMap,i,j+1),i,j+1,dt+1));
+            print(" right " ^ Int.toString(Queue.length newQ));
+            true)
+        else false
+        );
+        
+        (
+        if ( l = 1 ) then 
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i,j-1),i,j-1,dt+1))
+          in
+            print( " left " ^ Int.toString(Queue.length newQ));
+            true
+        end
+        else false
+        );
+        solver(newQ,dt+1)
+      end
+      
+(*
+  fun first q t:int = 
+    if(Queue.isEmpty q) then 123
+    else 
+  let
+   
+    fun second (tQ,tT,~10) = (tQ,tT,~10)
+      | second (tQ,tT,e) =
+    let
+      val (a:char,i:int,j:int,dt:int) = Queue.dequeue tQ
+      val (u:int,d:int,r:int,l:int) = examNeighbours (doomsMap,a,i,j)
+    in
+      if ( u = ~1 orelse d = ~1 orelse r = ~1 orelse l = ~1 ) then (
+      print("ftanoume\n" ^ Int.toString(dt+1)); (newQ,dt+1,~10))
+        else 
+        (  
+        if ( u = 1 ) then 
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i-1,j),i-1,j,dt+1))
+          in
+            (newQ,dt+1,1)
+        end
+        else (newQ,dt+1,0)
+        );
+        (
+        if ( d = 1 ) then 
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i+1,j),i+1,j,dt+1))
+          in
+            (newQ,dt+1,1)
+        end
+        else (newQ,dt+1,0)
+        );
+        (
+        if ( r = 1 ) then  
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i,j+1),i,j+1,dt+1))
+          in
+            print(" right " ^ Int.toString(Queue.length newQ)); 
+            (newQ,dt+1,1)
+          end
+        else (newQ,dt+1,0)
+        );
+        
+        (
+        if ( l = 1 ) then 
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i,j-1),i,j-1,dt+1))
+          in
+            print(" left " ^ Int.toString(Queue.length newQ)); 
+            (newQ,dt+1,1)
+          end
+        else (newQ,dt+1,0)
+        );
+        print("\n267tQ size is " ^ Int.toString(Queue.length tQ) ^ "\n");
+        second (tQ,dt+1,e)
+   
+    end
+    *)
+(*
+    val newQ = Queue.mkQueue () : (char*int*int*int) Queue.queue
+    fun second (tQ,tT,~2) = (tQ,tT,~2)
+      | second (tQ,tT,~1) = (tQ,tT,~1)
+      | second (tQ,tT,e) = 
+      if (Queue.isEmpty tQ = true) then second(tQ,tT,~2)
+      else
+      let
+        val (a:char,i:int,j:int,dt:int) = Queue.dequeue tQ
+        val (u:int,d:int,r:int,l:int) = examNeighbours (doomsMap,a,i,j)
+      in
+        (if ( u = 1 ) then 
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i-1,j),i-1,j,dt+1))
+          in
+            true
+        end
+        else false
+        );
+        (
+        if ( d = 1 ) then 
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i+1,j),i+1,j,dt+1))
+          in
+            true
+        end
+        else false
+        );
+        (
+        if ( r = 1 ) then  
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i,j+1),i,j+1,dt+1))
+          in
+            print(" right " ^ Int.toString(Queue.length newQ)); 
+            true
+          end
+        else false
+        );
+        
+        (
+        if ( l = 1 ) then 
+          let
+            val _ = Queue.enqueue(newQ,(Array2.sub(doomsMap,i,j-1),i,j-1,dt+1))
+          in
+            print(" left " ^ Int.toString(Queue.length newQ)); 
+            true
+          end
+        else false
+        );
+        if ( u = ~1 orelse d = ~1 orelse l = ~1 orelse r = ~1 ) then (print("ftanoume\n");second (tQ,dt,~1) )
+        else second (tQ,dt,0)
+    end
+
+    val (newQQ ,time:int, ret:int) = second (q,t,0)
+  in
+   
+    print("\nNewqueue size is " ^ Int.toString(Queue.length newQQ));
+    if (ret = ~1) then (print("telos\n"); time )
+    else if ( ret = ~2 ) then (print("gooo\n"); time)
+    else (print("giati\n"); first newQQ t+1)
+  end
+  *)
+
+  fun printList [] = "" 
+    | printList l = (print(hd l); print("\n"); printList (tl l))
+
+in
+  solver (q,0)
+end
+
