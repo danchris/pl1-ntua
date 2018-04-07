@@ -160,6 +160,7 @@ let
         (up,down,right,left)
     end
 
+  
   fun solver ([],_) = ([],0,0)
     | solver (((a,i,j,dt)::cs),t)  = 
   let
@@ -170,20 +171,35 @@ let
     val rR = if (r = 1) then ((Array2.sub(doomsMap,i,j+1),i,j+1,dt+1)::[]) else []
     val rL = if (l = 1) then ((Array2.sub(doomsMap,i,j-1),i,j-1,dt+1)::[]) else []
     val newL = cs @ rU @ rD @ rR @ rL
+    val flag = if (u = ~1 orelse d = ~1 orelse r = ~1 orelse l = ~1) then 1 else 0
     val flag1 = if (newL = [] ) then 1 
-    else if (#4 (hd newL) <= dt ) then 0 
-    else 1
+                else if (#4 (hd newL) < dt) then  3
+                else if (#4 (hd newL) = dt ) then 2
+                else if (#4 (hd newL) > dt) then  0
+                else 1
   in
-    if ( (u = ~1 orelse d = ~1 orelse r = ~1 orelse l = ~1) andalso (flag1 = 1))
-    then (newL,dt+1,~1)
+    if (flag=1 andalso flag1=1 ) then (newL,dt+1,~1)
+    else if (flag=1) then (newL,dt+1,~2)
     else  solver (newL,dt)
   end
 
 
   val (cL,final,e) = solver (currentList,0)
+  fun completeMap ([],t:int) = false
+    | completeMap ((a,i,j,dt:int)::cs,t:int) =
+
+    if (dt = t) then false
+    else
+    let 
+       val (u,d,r,l) = examNeighbours (doomsMap,a,i,j)
+    in
+      completeMap (cs,t)
+    end
 in
   (if (e = 0) then print ("the world is saved\n")
-  else print (Int.toString(final) ^ "\n"));
+   else print (Int.toString(final) ^ "\n"));
+  (if (e = ~2 ) then completeMap (cL,final)
+  else true);
   printMap (doomsMap,0,0)
 end
 
