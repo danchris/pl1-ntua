@@ -1,9 +1,5 @@
 fun doomsday file = 
 let
-
-    
-  
-  val q = Queue.mkQueue () : (char*int*int*int) Queue.queue
   
   fun linelist file = 
   let 
@@ -29,23 +25,6 @@ let
       else (print("\n"); printMap(doomsMap,i+1,0))
     end
   
-  fun createQueue (doomsMap,i,j) =
-    if(i=n) then q
-    else
-      let 
-        val el = Array2.sub(doomsMap,i,j)
-  in
-    (if(el <> #"X" andalso el <> #".") then 
-      let
-        val _ = Queue.enqueue(q,(el,i,j,0))
-      in 
-        true
-      end
-    else false);
-    if ( (j+1) < m) then createQueue (doomsMap,i,j+1)
-    else createQueue (doomsMap,i+1,0)
-  end
- 
  
   fun printList [] = print("\n")
     | printList l =
@@ -55,7 +34,6 @@ let
       ","^Int.toString(dt)^")");
       printList (tl l)
     end
-  val q = createQueue (doomsMap,0,0)
   
   fun createList (doomsMap,i,j) =
     if(i=n) then []
@@ -71,7 +49,6 @@ let
         else createList (doomsMap,i+1,0)
   end
   
-  val currentList = createList (doomsMap, 0, 0)
 
 
   fun goUp (doomsMap,a,i,j) = 
@@ -183,8 +160,6 @@ let
     else  solver (newL,dt)
   end
 
-
-  val (cL,final,e) = solver (currentList,0)
   fun completeMap ([],t:int) = false
     | completeMap ((a,i,j,dt:int)::cs,t:int) =
 
@@ -195,6 +170,11 @@ let
     in
       completeMap (cs,t)
     end
+  
+  val currentList = createList (doomsMap, 0, 0)
+
+  val (cL,final,e) = solver (currentList,0)
+  
 in
   (if (e = 0) then print ("the world is saved\n")
    else print (Int.toString(final) ^ "\n"));
