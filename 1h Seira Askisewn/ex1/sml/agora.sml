@@ -1,5 +1,4 @@
-fun solver (_,[]) = (0,0)
-  | solver (n,xi) = 
+fun solver (n,xi) = 
 let
   fun gcd (a:IntInf.int, 0) = a
     | gcd (0, b:IntInf.int) = b
@@ -46,7 +45,8 @@ let
 
   val (m,v) = result runningLCM start (min,village) 
   in
-    (m,if(m=min) then 0 else v)
+    print(IntInf.toString(m) ^ " " ^ (if(m=min) then Int.toString(0) else
+      Int.toString(v)) ^ "\n")
   end
 
 fun parse file =
