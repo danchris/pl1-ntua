@@ -1,6 +1,6 @@
 fun doomsday file = 
 let
-  
+
   fun linelist file = 
   let 
     val instr = TextIO.openIn file
@@ -13,42 +13,42 @@ let
   val doomsMap = Array2.fromList (map explode doomsMapList)
   val n = Array2.nRows(doomsMap)
   val m = Array2.nCols(doomsMap)
-  
-    fun printMap (doomsMap,i,j) = 
-      if (i=n) then print("")
-      else 
-    let 
-      val c = Array2.sub(doomsMap,i,j)
-    in
-      print (Char.toString(c));
-      if ( (j+1) < m) then ( printMap (doomsMap,i,j+1))
-      else (print("\n"); printMap(doomsMap,i+1,0))
-    end
-  
- 
+
+  fun printMap (doomsMap,i,j) = 
+    if (i=n) then print("")
+    else 
+      let 
+        val c = Array2.sub(doomsMap,i,j)
+  in
+    print (Char.toString(c));
+    if ( (j+1) < m) then ( printMap (doomsMap,i,j+1))
+    else (print("\n"); printMap(doomsMap,i+1,0))
+  end
+
+
   fun printList [] = print("\n")
     | printList l =
     let val (a,i,j,dt) = hd l
-    in
-      print("("^Char.toString(a) ^","^ Int.toString(i) ^","^ Int.toString(j) ^
-      ","^Int.toString(dt)^")");
-      printList (tl l)
-    end
-  
+      in
+        print("("^Char.toString(a) ^","^ Int.toString(i) ^","^ Int.toString(j) ^
+        ","^Int.toString(dt)^")");
+        printList (tl l)
+      end
+
   fun createList (doomsMap,i,j) =
     if(i=n) then []
     else
       let 
         val el = Array2.sub(doomsMap,i,j)
-  in
-    if(el <> #"X" andalso el <> #".") then
-      if((j+1)<m) then (el,i,j,0)::(createList (doomsMap, i, j+1))
-      else (el,i,j,0)::(createList (doomsMap,i+1,0))
-      else 
-        if((j+1)<m) then createList (doomsMap, i, j+1)
-        else createList (doomsMap,i+1,0)
-  end
-  
+    in
+      if(el <> #"X" andalso el <> #".") then
+        if((j+1)<m) then (el,i,j,0)::(createList (doomsMap, i, j+1))
+        else (el,i,j,0)::(createList (doomsMap,i+1,0))
+        else 
+          if((j+1)<m) then createList (doomsMap, i, j+1)
+          else createList (doomsMap,i+1,0)
+    end
+
 
 
   fun goUp (doomsMap,a,i,j) = 
@@ -66,9 +66,9 @@ let
         in
           ~1
         end
-        else 0
-    else 0
-    )
+           else 0
+           else 0
+           )
 
   fun goDown (doomsMap,a,i,j) = 
     (if(i<(n-1)) then
@@ -85,9 +85,9 @@ let
         in
           ~1
         end
-        else 0
-    else 0
-    )
+           else 0
+           else 0
+           )
 
   fun goRight (doomsMap,a,i,j) =
     (if(j<(m-1)) then
@@ -104,9 +104,9 @@ let
         in
           ~1
         end
-        else 0
-    else 0
-    )
+           else 0
+           else 0
+           )
 
   fun goLeft (doomsMap,a,i,j) = 
     (if(j>0) then
@@ -123,37 +123,37 @@ let
         in
           ~1
         end
-        else 0
-    else 0
-    )
+           else 0
+           else 0
+           )
 
   fun examNeighbours (doomsMap,a,i,j) = 
-    let 
-      val up = goUp (doomsMap,a,i,j)
-      val down = goDown (doomsMap,a,i,j)
-      val right = goRight (doomsMap,a,i,j)
-      val left = goLeft (doomsMap,a,i,j)
-    in
-        (up,down,right,left)
-    end
+  let 
+    val up = goUp (doomsMap,a,i,j)
+    val down = goDown (doomsMap,a,i,j)
+    val right = goRight (doomsMap,a,i,j)
+    val left = goLeft (doomsMap,a,i,j)
+        in
+          (up,down,right,left)
+        end
 
-  
+
   fun solver ([],_) = ([],0,0)
     | solver (((a,i,j,dt)::cs),t)  = 
-  let
-   
-    val (u,d,r,l) = examNeighbours (doomsMap,a,i,j)
-    val rU = if (u = 1) then ((Array2.sub(doomsMap,i-1,j),i-1,j,dt+1)::[]) else []
-    val rD = if (d = 1) then ((Array2.sub(doomsMap,i+1,j),i+1,j,dt+1)::[]) else []
-    val rR = if (r = 1) then ((Array2.sub(doomsMap,i,j+1),i,j+1,dt+1)::[]) else []
-    val rL = if (l = 1) then ((Array2.sub(doomsMap,i,j-1),i,j-1,dt+1)::[]) else []
-    val newL = cs @ rU @ rD @ rR @ rL
-    val flag = if (u = ~1 orelse d = ~1 orelse r = ~1 orelse l = ~1) then 1 else 0
-    val flag1 = if (newL = [] ) then 1 
-                else if (#4 (hd newL) < dt) then  3
-                else if (#4 (hd newL) = dt ) then 2
-                else if (#4 (hd newL) > dt) then  0
-                else 1
+    let
+
+      val (u,d,r,l) = examNeighbours (doomsMap,a,i,j)
+      val rU = if (u = 1) then ((Array2.sub(doomsMap,i-1,j),i-1,j,dt+1)::[]) else []
+      val rD = if (d = 1) then ((Array2.sub(doomsMap,i+1,j),i+1,j,dt+1)::[]) else []
+      val rR = if (r = 1) then ((Array2.sub(doomsMap,i,j+1),i,j+1,dt+1)::[]) else []
+      val rL = if (l = 1) then ((Array2.sub(doomsMap,i,j-1),i,j-1,dt+1)::[]) else []
+      val newL = cs @ rU @ rD @ rR @ rL
+      val flag = if (u = ~1 orelse d = ~1 orelse r = ~1 orelse l = ~1) then 1 else 0
+      val flag1 = if (newL = [] ) then 1 
+                  else if (#4 (hd newL) < dt) then  3
+                  else if (#4 (hd newL) = dt ) then 2
+                  else if (#4 (hd newL) > dt) then  0
+                  else 1
   in
     if (flag=1 andalso flag1=1 ) then (newL,dt+1,~1)
     else if (flag=1) then (newL,dt+1,~2)
@@ -165,21 +165,21 @@ let
 
     if (dt = t) then false
     else
-    let 
-       val (u,d,r,l) = examNeighbours (doomsMap,a,i,j)
+      let 
+        val (u,d,r,l) = examNeighbours (doomsMap,a,i,j)
     in
       completeMap (cs,t)
     end
-  
+
   val currentList = createList (doomsMap, 0, 0)
 
   val (cL,final,e) = solver (currentList,0)
-  
-in
-  (if (e = 0) then print ("the world is saved\n")
-   else print (Int.toString(final) ^ "\n"));
-  (if (e = ~2 ) then completeMap (cL,final)
-  else true);
-  printMap (doomsMap,0,0)
-end
+
+      in
+        (if (e = 0) then print ("the world is saved\n")
+         else print (Int.toString(final) ^ "\n"));
+         (if (e = ~2 ) then completeMap (cL,final)
+          else true);
+          printMap (doomsMap,0,0)
+      end
 
