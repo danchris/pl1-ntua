@@ -67,6 +67,7 @@ def main(argv):
 
     end = 0
     t = 0
+    prevT = 0
     while (len(myList)):
 
         item = myList.pop(0)
@@ -75,10 +76,8 @@ def main(argv):
         it_c = item[2]
         it_t = item[3]
 
-        if (end and it_t > t):
+        if (end and it_t > prevT):
             break
-
-        t = it_t
 
         ## Right
         if(myMap[it_i,it_j+1] == '.'):
@@ -87,6 +86,7 @@ def main(argv):
             myList.append(last)
         elif( myMap[it_i,it_j+1] != 'X' and myMap[it_i,it_j+1] != it_c):
             myMap[it_i,it_j+1] = '*'
+            t = it_t+1
             end = 1;
 
         ## Left
@@ -96,6 +96,7 @@ def main(argv):
             myList.append(last)
         elif( myMap[it_i,it_j-1] != 'X' and myMap[it_i,it_j-1] != it_c):
             myMap[it_i,it_j-1] = '*'
+            t = it_t+1
             end = 1;
 
         ## Up
@@ -105,6 +106,7 @@ def main(argv):
             myList.append(last)
         elif( myMap[it_i-1,it_j] != 'X' and myMap[it_i-1,it_j] != it_c):
             myMap[it_i-1,it_j] = '*'
+            t = it_t+1
             end = 1;
 
 
@@ -115,11 +117,14 @@ def main(argv):
             myList.append(last)
         elif( myMap[it_i+1,it_j] != 'X' and myMap[it_i+1,it_j] != it_c):
             myMap[it_i+1,it_j] = '*'
+            t = it_t+1
             end = 1;
+
+        prevT = it_t
 
 
     if (not end): print ("the world is saved")
-    else: print(t+1)
+    else: print(t)
     printMap()
 
     return
