@@ -1,0 +1,20 @@
+# Compiled class file
+*.class
+
+# Prerequisites
+*.d
+
+# Object files
+*.o
+
+# Text files
+*.txt
+
+# Pdf files
+*.pdf
+
+# Backup files
+*.backup
+
+# Testcases directories
+*-testcases-public/
