@@ -16,6 +16,7 @@
 # Backup files
 *.backup
 *.b
+*.other
 
 # Testcases directories
 *-testcases-public/
