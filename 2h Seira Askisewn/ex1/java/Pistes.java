@@ -112,9 +112,6 @@ public class Pistes {
         ArrayList<Pista> l = new ArrayList<Pista>(curr.pistes);
         ArrayList<Pista> newL = new ArrayList<Pista>();
 
-        if (l.isEmpty()) return newL;
-
-
         for (Pista p : l){
             if (p.getNumberOfNeeded() <= curr.numberOwn) {
                 HashMap<Integer,Integer> pistaNeeds = p.getNeeded();
