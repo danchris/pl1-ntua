@@ -19,5 +19,6 @@
 *.other
 
 # Testcases directories
+testcases-*/
 *-testcases-public/
 *.zip
