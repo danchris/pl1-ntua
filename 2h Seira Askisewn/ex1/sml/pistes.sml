@@ -22,9 +22,11 @@ let
         fun scanRest 0 a = rev a
           | scanRest j a = scanRest (j-1) (readInt stream :: a)
 
-        val rest = scanRest (ki+ri) [] 
-        val first = [ki,ri,si]
-        val all = first @ rest
+        val kiList = scanRest ki []
+        val riList = scanRest ri []
+      (*  val rest = scanRest (ki+ri) []  *)
+        val all = (n-i+1,ki,ri,si,kiList,riList)
+   (*     val all = first @ rest *)
       in
         scanner (i-1) (all::acc)
       end
