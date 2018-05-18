@@ -224,7 +224,7 @@ public class Pistes {
             Pista root = allPistes.remove(0);
             State curr = new State(root,root.getEarnings(),allPistes,root.getStars(),root.getEarnings().size());
             open.add(curr);
-            long max = -1;
+            long max = root.getStars();
 
             while(!open.isEmpty()){
                 curr = open.remove(0);
