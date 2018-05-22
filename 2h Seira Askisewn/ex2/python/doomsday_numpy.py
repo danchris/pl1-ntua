@@ -2,19 +2,26 @@
 
 import sys
 import os
+import numpy as np
 
 
 ## Global defines
+myMap = np.chararray((1002,1002), unicode=True)
 N , M = 1,1
-myMap = [['X' for x in range(1002)] for y in range(1002)]
 
+
+def printList(a):
+    print("Function that prints a list", end='')
+    for k in a: print(k, end='')
+
+    return
 
 def printMap ():
 
     global myMap, N, M
     for i in range(1,N):
         for k in range(1,M):
-            print(myMap[i][k], end='')
+            print(myMap[i,k], end='')
         print('\n',end='')
 
     return
@@ -31,6 +38,7 @@ def main(argv):
     last = tuple()
     j = 1
 
+    myMap[1,0] = 'X'
 
     with file as f:
         while True:
@@ -38,12 +46,12 @@ def main(argv):
             if (not c): break
             elif (c.isspace()):
                 M = j
-                myMap[N][j] = 'X'
+                myMap[N,j] = 'X'
                 N += 1
-                myMap[N][0] = 'X'
+                myMap[N,0] = 'X'
                 j = 1;
             else:
-                myMap[N][j] = c
+                myMap[N,j] = c
                 if (c == '+' or c == '-'):
                     last = (N,j,c,0)
                     myList.append(last)
@@ -51,6 +59,10 @@ def main(argv):
 
 
     file.close()
+
+    for i in range(0,M+1) :
+        myMap[0,i] = 'X'
+        myMap[N,i] = 'X'
 
 
     end = 0
@@ -68,43 +80,43 @@ def main(argv):
             break
 
         ## Right
-        if(myMap[it_i][it_j+1] == '.'):
-            myMap[it_i][it_j+1] = it_c
+        if(myMap[it_i,it_j+1] == '.'):
+            myMap[it_i,it_j+1] = it_c
             last = (it_i,it_j+1,it_c,it_t+1)
             myList.append(last)
-        elif( myMap[it_i][it_j+1] != 'X' and myMap[it_i][it_j+1] != it_c):
-            myMap[it_i][it_j+1] = '*'
+        elif( myMap[it_i,it_j+1] != 'X' and myMap[it_i,it_j+1] != it_c):
+            myMap[it_i,it_j+1] = '*'
             t = it_t+1
             end = 1;
 
         ## Left
-        if(myMap[it_i][it_j-1] == '.'):
-            myMap[it_i][it_j-1] = it_c
+        if(myMap[it_i,it_j-1] == '.'):
+            myMap[it_i,it_j-1] = it_c
             last = (it_i,it_j-1,it_c,it_t+1)
             myList.append(last)
-        elif( myMap[it_i][it_j-1] != 'X' and myMap[it_i][it_j-1] != it_c):
-            myMap[it_i][it_j-1] = '*'
+        elif( myMap[it_i,it_j-1] != 'X' and myMap[it_i,it_j-1] != it_c):
+            myMap[it_i,it_j-1] = '*'
             t = it_t+1
             end = 1;
 
         ## Up
-        if(myMap[it_i-1][it_j] == '.'):
-            myMap[it_i-1][it_j] = it_c
+        if(myMap[it_i-1,it_j] == '.'):
+            myMap[it_i-1,it_j] = it_c
             last = (it_i-1,it_j,it_c,it_t+1)
             myList.append(last)
-        elif( myMap[it_i-1][it_j] != 'X' and myMap[it_i-1][it_j] != it_c):
-            myMap[it_i-1][it_j] = '*'
+        elif( myMap[it_i-1,it_j] != 'X' and myMap[it_i-1,it_j] != it_c):
+            myMap[it_i-1,it_j] = '*'
             t = it_t+1
             end = 1;
 
 
         ## Down
-        if(myMap[it_i+1][it_j] == '.'):
-            myMap[it_i+1][it_j] = it_c
+        if(myMap[it_i+1,it_j] == '.'):
+            myMap[it_i+1,it_j] = it_c
             last = (it_i+1,it_j,it_c,it_t+1)
             myList.append(last)
-        elif( myMap[it_i+1][it_j] != 'X' and myMap[it_i+1][it_j] != it_c):
-            myMap[it_i+1][it_j] = '*'
+        elif( myMap[it_i+1,it_j] != 'X' and myMap[it_i+1,it_j] != it_c):
+            myMap[it_i+1,it_j] = '*'
             t = it_t+1
             end = 1;
 
