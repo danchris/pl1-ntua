@@ -23,3 +23,6 @@
 testcases-*/
 *-testcases-public/
 *.zip
+
+# Example Files
+"3h Seira Askisewn"/ex3/read_mundial_SWI.pl
