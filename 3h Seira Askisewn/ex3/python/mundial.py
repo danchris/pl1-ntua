@@ -10,6 +10,7 @@ def printList(myList):
 
 def main(argv):
 
+
     file = open(sys.argv[1],"r")
     last = tuple()
     N = 1
@@ -28,5 +29,10 @@ def main(argv):
 
     print(N)
     printList(myList)
+
+
 if __name__ =="__main__":
-    main(sys.argv)
+    if len(sys.argv) < 2:
+        print("Usage: python3 mundial.py [input.file]")
+    else:
+        main(sys.argv)
