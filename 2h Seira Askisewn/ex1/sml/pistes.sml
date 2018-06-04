@@ -1,3 +1,4 @@
+(*
 (*The stack module is taken from https://github.com/chrisamaphone/compose2015/blob/master/stack.sml *)
 signature STACK =
 sig
@@ -43,37 +44,59 @@ struct
   fun top (stack, size) = #1(split stack)
   fun size (stack, sz) = sz
 end
+*)
 fun pistes file=
-
 let
+  fun contains (_,[],_) = false
+    | contains (_,_,true) = true
+    | contains (key:int,(a:int)::cs, prev:bool) = 
+    let
+      val ret = if (key = a) then true else false
+    in
+      contains (key,cs,ret)
+    end
+
+  fun numberOfKeyInList (_,[]) = 0
+    | numberOfKeyInList (key: int ,(other:int) ::cs) = 
+    if (key = other) then 1 + numberOfKeyInList(key,cs)
+    else numberOfKeyInList (key,cs)
+    
+  fun createKeyList ([],_) = []
+    | createKeyList ((k::cs) ,checked:int list) =
+      if (contains (k,checked,false)) then createKeyList(cs,checked)
+      else
+        (k,numberOfKeyInList(k,cs)+1)::createKeyList(cs,checked @ [k])
+  
   fun parse file = 
-  let
-    fun readInt input = 
-      Option.valOf (TextIO.scanStream (Int.scan StringCvt.DEC) input)
-
-    val stream = TextIO.openIn file
-    val n = readInt stream
-    val _ = TextIO.inputLine stream
-
-    fun scanner 0 acc = rev acc
-      | scanner i acc = 
       let
-        val ki = readInt stream
-        val ri = readInt stream
-        val si = readInt stream
+        fun readInt input = 
+          Option.valOf (TextIO.scanStream (Int.scan StringCvt.DEC) input)
 
-        fun scanRest 0 a = rev a
-          | scanRest j a = scanRest (j-1) (readInt stream :: a)
+        val stream = TextIO.openIn file
+        val n = readInt stream
+        val _ = TextIO.inputLine stream
 
-        val kiList = scanRest ki []
-        val riList = scanRest ri []
-        (*  val rest = scanRest (ki+ri) []  *)
-        val all = (n-i+1,ki,ri,si,kiList,riList, (length riList))
-        (*     val all = first @ rest *)
-             in
-               scanner (i-1) (all::acc)
-end
-    val ret = scanner n [];
+        fun scanner 0 acc = rev acc
+          | scanner i acc = 
+          let
+            val ki = readInt stream
+            val ri = readInt stream
+            val si = readInt stream
+
+            fun scanRest 0 a = rev a
+              | scanRest j a = scanRest (j-1) (readInt stream :: a)
+
+            val kiList = scanRest ki []
+            val riList = scanRest ri []
+            val finalKi = createKeyList (kiList,[])
+            val finalRi = createKeyList (riList,[])
+
+            val all = (n-i+1,ki,ri,si,finalKi,finalRi)
+            
+                 in
+                   scanner (i-1) (all::acc)
+    end
+    val ret = scanner n []
 
       in
         (n,ret)
@@ -81,21 +104,52 @@ end
 
   val (n,allPistes) = parse file
   val pistesAvailable = (List.tl allPistes)
-  val emptyStack = ListStack.new
-  val tmpRoot = ((List.hd allPistes), pistesAvailable)
-  val root = ListStack.push tmpRoot emptyStack
+  val initNOwn = length(#6 (List.hd allPistes))
+  val init = ((List.hd allPistes), pistesAvailable, initNOwn)
 
-  (*val other = (((List.hd allPistes) @ tmp),pistesAvailable)*)
-  fun giveMePistes (_ ,[]) = []
-    | giveMePistes ((cid:int,cki:int,cri:int,csi:int,ckn:int list,cke:int
-    list,nOwn:int ), ((id:int,ki:int,ri:int,si:int,kn:int list,ke:int list,k:int)::cs)) = 
-    if ( kn > nOwn ) then giveMePistes ((cid,cki,cri,csi,ckn,cke,nOwn) ,cs)
-    else 
-       (id,ki,ri,si,kn,ke,k)::giveMePistes ((cid,cki,cri,csi,ckn,cke,nOwn), cs)
+    
+
+  fun containsTuple (_,[],ret) = ret
+    | containsTuple (key:int,l,ret) =
+    let
+      val (a,b) = List.hd l
+      val c = if (key = a) then true else false
+    in
+      if c then containsTuple(key,List.tl l, (a,b))
+      else containsTuple(key,List.tl l,ret)
+    end
+  
+  fun canPlay ([],_,_) = false
+    | canPlay (_,_,false) = false
+    | canPlay (_,[],prev:bool) = prev:bool
+    | canPlay (ownList, needList, prev) =
+    let
+      val (k,n) = List.hd needList
+      val (tK,tN) = containsTuple(k,ownList,(0,0))
+      val ret:bool = if (tK = 0) then false
+                else
+                    if (n<tN) then true
+                    else false
+    in
+      canPlay (List.tl needList, ownList, ret)
+    end
+
+                              
+
+
+  fun giveMePistes (_ ,[],_) = []
+    | giveMePistes ((cid:int,cki:int,cri:int,csi:int,ckn,cke), ((id:int,ki:int,ri:int,si:int,kn,ke)::cs), nOwn:int) =
+    if (length(kn) > nOwn) then giveMePistes ((cid,cki,cri,csi,ckn,cke), cs,
+    nOwn)
+    else (id,ki,ri,si,kn,ke)::giveMePistes ((cid,cki,cri,csi,ckn,cke), cs,
+    nOwn)
 
 
 
-  val other  = giveMePistes tmpRoot
+
+
+  (*val other  = giveMePistes init*)
+(* 
   (*
   fun solver [] [] max = max
     | solver ((cId,cKi,cRi,cSi,cKn,cKe,cL)::cs) ((id,ki,ri,si,kn,ke,l)::ns) max = 
@@ -105,7 +159,12 @@ end
   end
 
   *)
+  *)
+  val l = [(1,1),(2,1)]
+  val t = (0,0)
 in
-other 
-   (*(n,allPistes)  *)
+  canPlay([(1,2),(2,1)],[(1,1)],true)
+(* allPistes*)
+ (* numberOfKeyInList (1,[1,2,3,1,1])*)
+ (*   init*)
 end
