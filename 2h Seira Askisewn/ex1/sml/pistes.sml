@@ -102,10 +102,6 @@ let
         (n,ret)
       end
 
-  val (n,allPistes) = parse file
-  val pistesAvailable = (List.tl allPistes)
-  val initNOwn = length(#6 (List.hd allPistes))
-  val init = ((List.hd allPistes), pistesAvailable, initNOwn)
 
     
 
@@ -119,52 +115,127 @@ let
       else containsTuple(key,List.tl l,ret)
     end
   
-  fun canPlay ([],_,_) = false
+
+
+  fun canPlay ([],_,true) = true
+    | canPlay ([],[],false) = false
     | canPlay (_,_,false) = false
-    | canPlay (_,[],prev:bool) = prev:bool
-    | canPlay (ownList, needList, prev) =
-    let
-      val (k,n) = List.hd needList
-      val (tK,tN) = containsTuple(k,ownList,(0,0))
-      val ret:bool = if (tK = 0) then false
-                else
-                    if (n<tN) then true
-                    else false
-    in
-      canPlay (List.tl needList, ownList, ret)
-    end
-
-                              
-
-
-  fun giveMePistes (_ ,[],_) = []
-    | giveMePistes ((cid:int,cki:int,cri:int,csi:int,ckn,cke), ((id:int,ki:int,ri:int,si:int,kn,ke)::cs), nOwn:int) =
-    if (length(kn) > nOwn) then giveMePistes ((cid,cki,cri,csi,ckn,cke), cs,
-    nOwn)
-    else (id,ki,ri,si,kn,ke)::giveMePistes ((cid,cki,cri,csi,ckn,cke), cs,
-    nOwn)
-
-
-
-
-
-  (*val other  = giveMePistes init*)
-(* 
-  (*
-  fun solver [] [] max = max
-    | solver ((cId,cKi,cRi,cSi,cKn,cKe,cL)::cs) ((id,ki,ri,si,kn,ke,l)::ns) max = 
-    let
-  fun playPista 
+    | canPlay (pistaL,ownL,flag) = 
+  let
+    val (k,n) = List.hd pistaL
+    val f = containsTuple(k,ownL,(0,0))
   in
+    if (f = (0,0)) then canPlay(List.tl pistaL,ownL,false)
+    else 
+      let
+        val tmpN = #2 f
+      in
+        if (tmpN>=n) then (canPlay(List.tl pistaL,ownL,true))
+        else canPlay(List.tl pistaL,ownL,false)
+      end
   end
 
-  *)
-  *)
-  val l = [(1,1),(2,1)]
-  val t = (0,0)
+  (* State = (currPista,availablePistes,keysOwn,stars)
+  *  currPista = (id,nKeysN,nKeysE,stars,KeysNeed,KeysEar)
+  *  availablePistes = list of pistes
+  *  keysOwn list of tuples (key,number)
+  *
+  * *)
+
+  
+  fun addOrRemoveKeys ([],_,_) = []
+    | addOrRemoveKeys (_,[],_) = []
+    | addOrRemoveKeys (keysOwn, otherL, add) =  
+    let
+      val (myK,myN) = List.hd otherL
+      val (tmpK,tmpN) = containsTuple(myK,keysOwn,(0,0))
+      val (newK,newN) = if (add = 0) then (myK,myN-tmpN) else (myK,myN+tmpN)
+    in
+        (newK,newN)::addOrRemoveKeys(keysOwn,List.tl otherL,add)
+    end
+
+  fun existsInList (_,[],prev:bool) = prev
+    | existsInList (id:int,l:int list,prev:bool) = 
+    if (id = List.hd l) then existsInList(id,List.tl l,true)
+    else existsInList (id,List.tl l,prev)
+
+  fun returnAvailablePistes ([],[]) = []
+    | returnAvailablePistes ([],_) = []
+    | returnAvailablePistes ((id:int,ki:int,ri:int,si:int,kn,ke)::cs,[]) = (id:int,ki:int,ri:int,si:int,kn,ke)::cs
+    | returnAvailablePistes ((id:int,ki:int,ri:int,si:int,kn,ke)::cs,visited) = 
+  let
+    val t:bool = existsInList(id,visited,false)
+  in
+    if t then returnAvailablePistes(cs,visited)
+    else (id,ki,ri,si,kn,ke)::returnAvailablePistes(cs,visited)
+  end 
+  
+  fun giveMePistesfromAvailable (_,[],_,_) = []
+    | giveMePistesfromAvailable ((cid:int,cki:int,cri:int,csi:int,ckn,cke), ((id:int,ki:int,ri:int,si:int,kn,ke)::cs), keysOwn,_) =
+    if (canPlay(kn,keysOwn,true)) then
+        if (ki > length(keysOwn)) then 
+                                giveMePistesfromAvailable((cid,cki,cri,csi,ckn,cke),cs,keysOwn,~1)
+                            else 
+                              (id,ki,ri,si,kn,ke)::giveMePistesfromAvailable((cid,cki,cri,csi,ckn,cke),cs,keysOwn,~1)
+        else
+                            giveMePistesfromAvailable((cid,cki,cri,csi,ckn,cke),cs,keysOwn,~1)
+
+
+  fun playPista ((cid:int,cki:int,cri:int,csi:int,ckn,cke),(id:int,ki:int,ri:int,si:int,kn,ke),keysOwn,stars) =
+  let
+    val rm = addOrRemoveKeys(keysOwn,kn,0)
+    val add = addOrRemoveKeys(rm,ke,1)
+  in
+    ((id,ki,ri,si,kn,ke),add,si+stars)
+  end
+
+  fun helper (_,[],_,_,_,retL,best) = (retL,best)
+    | helper (pista,listOfPistes,keys,stars,visited,retL,best) =  
+  let
+    val p = List.hd listOfPistes
+    val id = #1 p
+    val newV = [id]@visited
+    val (nextCurr,newKeys,newStars) = playPista(pista,List.hd
+    listOfPistes,keys,stars)
+    val newBest = if (newStars > best) then newStars else best
+    val newRetL = (nextCurr,listOfPistes,newKeys,newStars,newV)::retL
+  in
+    helper(pista,(List.tl listOfPistes),keys,stars,visited,newRetL,newBest)
+  end
+ 
+
+  fun solver ([],best) = []
+    | solver (openSet,best) =
+    let
+      val currState = List.hd openSet
+      val currPista = #1 currState
+      val pistesList = #2 currState
+      val keysOwn = #3 currState
+      val stars = #4 currState
+      val visited = #5 currState
+      val tmpL = returnAvailablePistes(pistesList,visited)
+      val actualList = giveMePistesfromAvailable(currPista,tmpL,keysOwn,~1)
+      val (retListsOfStates,tmpBest) = helper(currPista,actualList,keysOwn,stars,visited,[],best)
+    (*  val newBest = if (tmpBest > best) then tmpBest else best*)
+      val newOpen = (List.tl openSet) @ retListsOfStates
+      val newH = List.hd newOpen
+      val newCurr = #1 newH
+      val newId:int = #1 newCurr
+    in
+      retListsOfStates
+    end
+  
+  val (n,allPistes) = parse file
+  
+  val initPista = List.hd allPistes
+  val initKeys = #6 initPista
+  val initStars = #4 initPista
+  val initNOwn = #3 initPista
+  val visited = [(#1 initPista)]
+  val init = (initPista, allPistes, initKeys, initStars, visited)
+
+  val openSet = [init]
+  val solution = solver(openSet,initStars)
 in
-  canPlay([(1,2),(2,1)],[(1,1)],true)
-(* allPistes*)
- (* numberOfKeyInList (1,[1,2,3,1,1])*)
- (*   init*)
+  solution
 end
