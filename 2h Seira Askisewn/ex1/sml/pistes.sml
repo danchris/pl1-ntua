@@ -44,7 +44,7 @@ let
   fun parse file = 
       let
         fun readInt input =
-          Option.valOf (TextIO.scanStream (Int.scan StringCvt.DEC) input) handle _ => 0
+          Option.valOf (TextIO.scanStream (Int.scan StringCvt.DEC) input) 
         val stream = TextIO.openIn file
         val n = readInt stream
         val n = n + 1
