@@ -1,13 +1,56 @@
+  (*fun print x = ();*)
+    (*
+(*The stack module is taken from https://github.com/chrisamaphone/compose2015/blob/master/stack.sml *)
+signature STACK =
+sig
+  exception E
+  type 'a stack
+  val new : 'a stack
+  val push : 'a -> 'a stack -> 'a stack
+  val pop : 'a stack -> 'a stack
+  val top : 'a stack -> 'a
+  (* step 2 *)
+  val size : 'a stack -> int
+end
+
+structure ListStack : STACK =
+struct
+  exception E
+  type 'a stack = 'a list
+  val new = []
+  fun push x s = x::s
+  fun split (h::t) = (h,t)
+    | split _ = raise E
+  fun pop s = #2(split s)
+  fun top s = #1(split s)
+    (* *** *)
+  fun size l = List.length l
+end
+
+(* Run these in the repl:
+val emptyStack = ListStack.new;
+val stack0 = ListStack.push 0 emptyStack;
+*)
+
+(* maintain constant size *)
+structure SizedStack : STACK =
+struct
+  exception E
+  type 'a stack = ('a list * int)
+  val new = ([], 0)
+  fun push x (stack, size) = (x::stack, size + 1)
+  fun split (h::t) = (h,t)
+    | split _ = raise E
+  fun pop (stack, size) = (#2(split stack), size - 1)
+  fun top (stack, size) = #1(split stack)
+  fun size (stack, sz) = sz
+end
+*)
+
 fun pistes file =
 let
 
-    (* check if a pista exists in visited *)
-  fun existsInList (_,[],prev:bool) = prev
-    | existsInList (id:int,l:int list,prev:bool) = 
-    if (id = List.hd l) then existsInList(id,List.tl l,true)
-    else existsInList (id,List.tl l,prev)
-  
-    (* search if a key contains in simple int list *)
+  (* search if a key contains in simple int list *)
   fun contains (_,[],_) = false
     | contains (_,_,true) = true
     | contains (key:int,(a:int)::cs, prev:bool) = 
@@ -27,24 +70,16 @@ let
  (* creates a list from tuples (key,number) *)
   fun createKeyList ([],_) = []
     | createKeyList ((k::cs) ,checked:int list) =
-    let
-      val check = contains(k,checked,false)
-    in
-    if (check) then createKeyList(cs,checked)
-      else (
-          let
-              val newC =  k::checked 
-              val number = numberOfKeyInList(k,(k::cs))
-          in
-            (k,number)::createKeyList(cs,[k]@newC)
-            end
-            )
-    end
-      (* reader *)
+      if (contains (k,checked,false)) then createKeyList(cs,checked)
+      else
+        (k,numberOfKeyInList(k,cs)+1)::createKeyList(cs,checked @ [k])
+  
+ (* reader *)
   fun parse file = 
       let
         fun readInt input =
-          Option.valOf (TextIO.scanStream (Int.scan StringCvt.DEC) input) handle _ => 0
+          Option.valOf (TextIO.scanStream (Int.scan StringCvt.DEC) input)
+
         val stream = TextIO.openIn file
         val n = readInt stream
         val n = n + 1
@@ -60,7 +95,7 @@ let
             fun scanRest 0 a = rev a
               | scanRest j a = scanRest (j-1) (readInt stream :: a)
 
-            val kiList = scanRest ki [] 
+            val kiList = scanRest ki []
             val riList = scanRest ri []
             val finalKi = createKeyList (kiList,[])
             val finalRi = createKeyList (riList,[])
@@ -108,6 +143,11 @@ let
       else addOrRemoveKeys(keysOwn,List.tl otherL,add,newRetL)
     end
 
+    (* check if a pista exists in visited *)
+  fun existsInList (_,[],prev:bool) = prev
+    | existsInList (id:int,l:int list,prev:bool) = 
+    if (id = List.hd l) then existsInList(id,List.tl l,true)
+    else existsInList (id,List.tl l,prev)
 
     (* return a list with available pistes based on visited *)
   fun returnAvailablePistes ([],[]) = []
