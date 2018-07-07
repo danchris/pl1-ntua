@@ -2,13 +2,10 @@
 
 import sys
 import os
-import copy
 import heapq as hq
 import itertools
 
 N = 1
-listOfPossibleMatches = list()
-
 class Team():
 
     def __init__(self,name,matches,goals,fails):
@@ -155,15 +152,11 @@ def main(argv):
 
     while openSet:
         currState = hq.heappop(openSet)
-       # currState = openSet.pop(0)
         if (not currState.otherTeams):
             for i in currState.prevMatches:
                 i.printMatch()
             return
         currHost = hq.heappop(currState.otherTeams)
-        #currHost = currState.otherTeams.pop()
-        #newTeams = copy.copy(currState.otherTeams)
-        #pMatches = copy.copy(currState.prevMatches)
         for currGuest in currState.otherTeams:
             testMatch = Match(currHost.name,currGuest.name,-1,-1)
             pMatches = currState.prevMatches[:]
@@ -179,9 +172,7 @@ def main(argv):
                     if (b.matches!=0):
                         hq.heappush(newTeams,b)
                     newS = State(newTeams,pMatches)
-                   # openSet.append(newS)
                     hq.heappush(openSet,newS)
-                #    openSet.insert(0,newS)
 
     return
 
