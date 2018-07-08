@@ -67,7 +67,15 @@ class State():
         print("\n\t--------------End printState--------------\t\n")
 
     def __lt__(self,other):
-        return len(self.prevMatches) > len(other.prevMatches)
+        a = len(self.prevMatches)
+        b = len(other.prevMatches)
+        c = len(self.otherTeams)
+        d = len(other.otherTeams)
+        if ( a != b):
+            return a > b
+        if ( c != d ):
+            return c < d
+        return 0
 
 
 
@@ -152,7 +160,7 @@ def main(argv):
 
     while openSet:
         currState = hq.heappop(openSet)
-        if (not currState.otherTeams):
+        if (not currState.otherTeams and len(currState.prevMatches)==N-1):
             for i in currState.prevMatches:
                 i.printMatch()
             return
