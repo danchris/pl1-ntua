@@ -29,12 +29,40 @@ read_line(Stream, pista(Id,Ki,Ri,Si,K,R),Id):-
     getHeadAndReturnTail(L,Ki,L1),
     getHeadAndReturnTail(L1,Ri,L2),
     getHeadAndReturnTail(L2,Si,L3),
-    readList(L3,Ki,K),
-    append(K,L4,L3),
-    readList(L4,Ri,R).
+    readList(L3,Ki,KH),
+    append(KH,L4,L3),
+    readList(L4,Ri,RH),
+    createKeyList(KH,[],[],K),
+    createKeyList(RH,[],[],R),
+    !.
     
+/* The bellow predicate (myAppend) got from https://stackoverflow.com/questions/32720673/prolog-insert-the-number-in-the-list-by-the-tail */
+myAppend([],E,[E]):-!.
+myAppend([H|T],E,[H|T1]):-myAppend(T,E,T1).
+
+countNumber([],_,C,C):-!.
+countNumber([H|T],N,C,A):-
+    ( H == N -> C1 is C + 1
+    ; C1 is C
+    ),
+    countNumber(T,N,C1,A).
+
+returnKey([],_,_):-!.
+returnKey(L,N,key(N,A)):-
+    countNumber(L,N,0,A).
 
 
+createKeyList([],A,_,A):-!.
+createKeyList([],[],[],A):- A = [],!.
+createKeyList([H|T],L,Checked,R):-
+    ( \+ member(H,Checked) -> returnKey([H|T],H,Key),
+    myAppend(Checked,H,Checked1),
+    myAppend(L,Key,L1),
+    createKeyList(T,L1,Checked1,R)
+    ; createKeyList(T,L,Checked,R)
+    ).
+
+getHeadAndReturnTail([],_,_).
 getHeadAndReturnTail([H|T],H,T).
 
 readList(_,0,L):- L = [],!.
