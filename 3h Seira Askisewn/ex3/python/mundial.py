@@ -223,22 +223,18 @@ def main(argv):
                 tmpCont.remove(toCont)
                 if (stop[int(len(stop)-1)]==toStop and cont[int(len(cont)-1)]==toCont):
                     tmp = currState.buf[:]
-                    #tmp.append(newH)
-                    #tmp.reverse()
                     hq.heappush(tmp,newH)
                     tmp.reverse()
                     newS = State(tmp,currState.rnd+1,pMatches+[newM],[])
-                    #newS = State(currState.buf+[newH],currState.rnd+1,pMatches+[newM],[])
                 else:
                     tmp = currState.buf[:]
-                    #tmp.append(newH)
-                    hq.heappush(tmp,newH)
+                    tmp.append(newH)
+                    #hq.heappush(tmp,newH)
+                    #tmp.reverse()
                     tmp1 = tmpStop+tmpCont
                     hq.heapify(tmp1)
                     tmp1.reverse()
-                    tmp.reverse()
                     newS = State(tmp1,currState.rnd,pMatches+[newM],tmp)
-                    #newS = State(tmpStop+tmpCont,currState.rnd,pMatches+[newM],currState.buf+[newH])
                 hq.heappush(openSet,newS)
 
 
