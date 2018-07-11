@@ -115,7 +115,7 @@ def canPlay(h,g):
     finalHostGoals = g.fails
     finalGuestGoals = g.goals
 
-    if (finalHostGoals == finalGuestGoals):
+    if (finalHostGoals <= finalGuestGoals):
         return None
 
     afterHostGoals = h.goals - finalHostGoals
@@ -153,8 +153,7 @@ def findTeamsThatCanPlay(t,lst):
     retL = list()
     for i in lst:
         ch = canPlay(i,t)
-        if (ch is None):
-            continue
+        if (ch is None): continue
         else:
             retL.append((i,ch))
 
@@ -185,6 +184,7 @@ def main(argv):
     #myList contains teams
 
 
+    myList.reverse()
     root = State(myList,1,[],[])
 
 
@@ -196,23 +196,25 @@ def main(argv):
 
         currState = hq.heappop(openSet)
 
-
         if (currState.rnd == int(math.log(N,2)) and len(currState.prevMatches) == N - 2 and len(currState.otherTeams)==2):
             newM = playTelikos(currState.otherTeams[0],currState.otherTeams[1])
             if (newM is None):
                 continue
-            currState.prevMatches.append(newM)
-            for i in currState.prevMatches:
-                i.printMatch()
-            return
+            else:
+                currState.prevMatches.append(newM)
+                for i in reversed(currState.prevMatches):
+                    i.printMatch()
+                return
 
         stop,cont = returnTeams(currState.otherTeams)
 
         sStop = stop[:]
-        for toStop in stop:
+        for toStop in reversed(stop):
+            retL = findTeamsThatCanPlay(toStop,reversed(cont))
+            if (not retL):
+                break
             tmpStop = sStop[:]
             tmpStop.remove(toStop)
-            retL = findTeamsThatCanPlay(toStop,cont)
             pMatches = currState.prevMatches[:]
             for it in retL:
                 tmpCont = cont[:]
@@ -221,13 +223,21 @@ def main(argv):
                 tmpCont.remove(toCont)
                 if (stop[int(len(stop)-1)]==toStop and cont[int(len(cont)-1)]==toCont):
                     tmp = currState.buf[:]
+                    #tmp.append(newH)
+                    #tmp.reverse()
                     hq.heappush(tmp,newH)
+                    tmp.reverse()
                     newS = State(tmp,currState.rnd+1,pMatches+[newM],[])
                     #newS = State(currState.buf+[newH],currState.rnd+1,pMatches+[newM],[])
                 else:
                     tmp = currState.buf[:]
+                    #tmp.append(newH)
                     hq.heappush(tmp,newH)
-                    newS = State(tmpStop+tmpCont,currState.rnd,pMatches+[newM],tmp)
+                    tmp1 = tmpStop+tmpCont
+                    hq.heapify(tmp1)
+                    tmp1.reverse()
+                    tmp.reverse()
+                    newS = State(tmp1,currState.rnd,pMatches+[newM],tmp)
                     #newS = State(tmpStop+tmpCont,currState.rnd,pMatches+[newM],currState.buf+[newH])
                 hq.heappush(openSet,newS)
 
