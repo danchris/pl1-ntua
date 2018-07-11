@@ -5,7 +5,7 @@ import os
 import copy
 import heapq as hq
 import itertools
-
+import math
 N = 1
 class Team():
 
@@ -25,11 +25,14 @@ class Team():
             return False
 
     def __lt__(self,other):
+        #return (self.matches+self.goals + self.fails) < (other.matches +other.goals+other.fails)
         if (self.matches != other.matches):
             return self.matches < other.matches
         if (self.fails != other.fails):
             return self.fails > other.fails
-        return self.goals < other.goals
+        if ( self.goals != other.goals):
+            return self.goals < other.goals
+        return self.name < other.name
 
 
 class Match():
@@ -55,233 +58,107 @@ class Match():
 
 class State():
 
-    def __init__(self,otherTeams,prevMatches):
+    def __init__(self,otherTeams,rnd,prevMatches,buf):
         self.otherTeams = otherTeams
+        self.rnd = rnd
         self.prevMatches = prevMatches
+        self.buf = buf
 
 
     def printState(self):
         print("\n\t--------------Start printState--------------\t\n")
+        print("Round: ", end = ' ')
+        print(self.rnd)
         for it in self.otherTeams:
-            print("oi omades einai ws eksis: ", end = ' ')
+            print("oi omades einai ws eksis : ", end = ' ')
             it.printTeam()
+
 
         for it in self.prevMatches:
             print("kai ta match einai ws eksis: ", end = ' ')
             it.printMatch()
+
+        print("Buffer ")
+        for it in self.buf:
+            it.printTeam()
+
         print("\n\t--------------End printState--------------\t\n")
 
     def __lt__(self,other):
-        if (len(self.prevMatches) != len(other.prevMatches)):
-            return len(self.prevMatches) > len(other.prevMatches)
-        return len(self.otherTeams) < len(other.otherTeams)
+        r = self.rnd
+        oR = other.rnd
+        t = len(self.otherTeams)
+        oT = len(other.otherTeams)
+        p = len(self.prevMatches)
+        oP = len(other.prevMatches)
+        b = len(self.buf)
+        oB = len(other.buf)
+        return int(r+p+b+t) > int(oR+oT+oP+oB)
 
-
-def playMatch(host,guest):
-
-    f_host = host.name
-    #print("--------",f_host)
-    f_guest = guest.name
-    f_g = 0
-    f_f = 0
-
-    if (host.goals !=0 and guest.fails !=0):
-        if (host.goals >= guest.fails):
-            f_g = guest.fails
-            #host.goals -= guest.fails
-            #guest.fails -= guest.fails
-        else:
-            f_g = host.goals
-            #host.goals -= host.goals
-            #guest.fails -= host.goals
-
-
-    if (host.fails !=0 and guest.goals !=0):
-        if (host.fails <= guest.goals):
-            f_f = host.fails
-            #guest.goals -= host.fails
-            #host.fails -= host.fails
-        else:
-            f_f = guest.goals
-            #guest.goals -= guest.goals
-            #host.fails -= guest.goals
-
-    #host.matches -= 1
-    #guest.matches -= 1
-
-    #print("Epaiksa", end=' ')
-    #print(f_host, "-", f_guest," ", f_g, "-" , f_f)
-
-    retMatch = Match(f_host,f_guest,f_g,f_f)
-    return retMatch
-
-
-#     if (host.matches == 0):
-#         retHost = None
-#     else:
-#         retHost = Team(host.name,host.matches,host.goals,host.fails)
-#
-#     if (guest.matches == 0):
-#         retGuest = None
-#     else:
-#         retGuest = Team(guest.name,guest.matches,guest.goals,guest.fails)
-#
-#     retMatch = Match(f_host,f_guest,f_g,f_f)
-#
-#     if guest in otherTeams:
-#         otherTeams.remove(guest)
-#     if (retGuest != None):
-#         otherTeams.append(retGuest)
-#     prevMatches.append(retMatch)
-#
-#     if (retHost == None and len(prevMatches) != N-1):
-#         return None
-#     newState = State(retHost,otherTeams,prevMatches)
-#
-#     return newState
-#
-
-
-
-
-'''
-def testAndReturn(test:State)->list():
-
-    print("Mpika sthn testAndReturn")
-    retList = []
-    h = test.otherTeams.pop()
-    o = copy.copy(test.otherTeams)
-    for it in o:
-        host = copy.copy(h)
-        testMatch = Match(host.name,it.name,-1,-1)
-        if (testMatch not in test.prevMatches):
-            print("allh katastash")
-            guest = copy.copy(it)
-            #guest = copy.deepcopy(it)
-            retMatch = playMatch(host,it)
-            host.matches -= 1
-            host.goals -= retMatch.goalsHost
-            host.fails -= retMatch.goalsGuest
-            guest.matches -= 1
-            guest.goals -= retMatch.goalsGuest
-            guest.fails -= retMatch.goalsHost
-            if (host.matches < 1 and (host.goals !=0 or host.fails !=0)):
-                print("host dn mporei")
-                continue
-            if (guest.matches < 1 and (guest.goals !=0 or guest.fails !=0)):
-                print("guest dn mporei")
-                continue
-            test.otherTeams.remove(it)
-            newOtherTeams = copy.copy(test.otherTeams)
-            if(host.goals != 0 or host.fails != 0):
-                print("Nai host", end = ' ')
-                host.printTeam()
-                newOtherTeams.append(host)
-            if (guest.goals !=0 or guest.fails !=0):
-                print("nai guest", end = ' ')
-                guest.printTeam()
-                newOtherTeams.append(guest)
-            newPrevMatches = copy.copy(test.prevMatches)
-            newPrevMatches.append(retMatch)
-            newState = []
-            newState = State(newOtherTeams,newPrevMatches)
-            retList.append(newState)
-
-            for a in retList:
-                print("Mexri twra h retLIst exei: ", end = ' ')
-                a.printState()
-
-
-
-    return retList
-'''
-
-
-
-#This function got from https://stackoverflow.com/questions/5360220/how-to-split-a-list-into-pairs-in-all-possible-ways
-
-def generateGroups(lst, n):
-    if not lst:
-        yield []
-    else:
-        for group in (((lst[0],) + xs) for xs in itertools.combinations(lst[1:], n-1)):
-            for groups in generateGroups([x for x in lst if x not in group], n):
-                yield [group] + groups
 
 
 def canPlay(h,g):
 
+    #print(h.name,'-',g.name, end = ' ')
 
 
-    if (h.goals <= g.fails):
-        finalGH = h.goals
-    else:
-        finalGH = g.fails
-
-    if (g.goals <= h.fails):
-        finalGG = g.goals
-    else:
-        finalGG = h.fails
-
-    afterGH = h.goals - finalGH
-    afterFH = h.fails - finalGG
-    afterGG = g.goals - finalGG
-    afterFG = g.fails - finalGH
-
-    if (finalGG == finalGH):
-        return None
-    if (h.matches < 2 and (afterGH!=0 or afterFH!=0)):
-        return None
-    if (g.matches < 2 and (afterGG!=0 or afterFG!=0)):
+    # An o host dn mporei na valei tosa goals osa thelei o guest na apokleistei tote return None
+    if (h.goals < g.fails):
+        #print("host ligotera goals")
         return None
 
-    newH = Team(h.name,h.matches-1,afterGH,afterFH)
-    newG = Team(g.name,g.matches-1,afterGG,afterFG)
+    #An o guest prepei na valei parapanw apo auta pou mporei na faei o host tote return None
+    if(h.fails < g.goals):
+        #print("host ligotera fails")
+        return None
+
+    finalHostGoals = g.fails
+    finalGuestGoals = g.goals
+
+    if (finalHostGoals == finalGuestGoals):
+        return None
+
+    afterHostGoals = h.goals - finalHostGoals
+    afterHostFails = h.fails - finalGuestGoals
+
+    newH = Team(h.name,h.matches-1,afterHostGoals,afterHostFails)
+    newM = Match(h.name,g.name,finalHostGoals,finalGuestGoals)
+    return (newH,newM)
+
+
+def playTelikos(h,g):
+
+    if (h.goals != g.fails or g.goals != h.fails or h.fails == g.fails):
+        return None
+    finalGH = g.fails
+    finalGG = h.fails
     newM = Match(h.name,g.name,finalGH,finalGG)
 
-    retTuple = (newH,newG,newM)
+    return newM
 
-    return retTuple
+def returnTeams(lst):
 
+    stop = list()
+    cont = list()
+    for i in lst:
+        number = i.matches
+        if (number == 1):
+            hq.heappush(stop,i)
+        else:
+            hq.heappush(cont,i)
 
-def checkAndReturn(pa,pMatches):
+    return (stop,cont)
 
-    newTeams = []
-    newMatches = pMatches[:]
+def findTeamsThatCanPlay(t,lst):
+    retL = list()
+    for i in lst:
+        ch = canPlay(i,t)
+        if (ch is None):
+            continue
+        else:
+            retL.append((i,ch))
 
-    for i in pa:
-        guest,host = i
-       # host,guest = i
-        testMatch = Match(host.name,guest.name,-1,-1)
-        if (testMatch not in pMatches):
-            ch = canPlay(host,guest)
-            if (ch is None):
-                return None
-            else:
-                a,b,c=ch
-                if (a.matches!=0):
-                    hq.heappush(newTeams,a)
-                    #newTeams.append(a)
-                if (b.matches!=0):
-                    hq.heappush(newTeams,b)
-                    #newTeams.append(b)
-                newMatches.append(c)
-                #c.printMatch()
-
-    retState = State(newTeams,newMatches)
-    return retState
-
-#def printList(myList):
-#    for i in myList:
-#    print(i.name, " ",i.matches, " ",i.goals, " ", i.fails, end =' | ')
-
-
-#def printState(state):
-#    print("Name is ", state.team.name, end = ' | ' )
-#    print("Other teams are: ", end='')
-#    printList(state.otherTeams)
-#    print("\nAnd matches played are: ", state.prevMatches)
-
+    return retL
 def main(argv):
 
 
@@ -299,59 +176,70 @@ def main(argv):
             line = line.replace("\r", "").replace("\n", "")
             last = line.split(" ")
             tmpTeam = Team(last[0],last[1],last[2],last[3])
-            myList.append(tmpTeam)
+            hq.heappush(myList,tmpTeam)
+            #myList.append(tmpTeam)
 
         f.close()
 
 
     #myList contains teams
 
-    #for i in myList:
-     #   i.printTeam()
 
-    hq.heapify(myList)
+    root = State(myList,1,[],[])
+
+
     openSet = list()
-    rootState = State(myList,[])
-    openSet.append(rootState)
+    openSet.append(root)
 
-    while len(openSet) > 0:
+    allL = list()
+    while openSet:
+
         currState = hq.heappop(openSet)
-        #currState = openSet.pop()
-        if (len(currState.otherTeams) == 0):
-            for i in reversed(currState.prevMatches):
+
+
+        if (currState.rnd == int(math.log(N,2)) and len(currState.prevMatches) == N - 2 and len(currState.otherTeams)==2):
+            newM = playTelikos(currState.otherTeams[0],currState.otherTeams[1])
+            if (newM is None):
+                continue
+            currState.prevMatches.append(newM)
+            for i in currState.prevMatches:
                 i.printMatch()
             return
-        listOfPossibleMatches = list(generateGroups(currState.otherTeams, 2))
-        print(len(listOfPossibleMatches))
-        for pairs in reversed(listOfPossibleMatches):
-            #tmpSt is a list of pairs now we must check if this state can be valid
 
-            retSt = checkAndReturn(pairs,currState.prevMatches)
-            if (retSt is not None):
-                hq.heappush(openSet,retSt)
-                #openSet.append(retSt)
+        stop,cont = returnTeams(currState.otherTeams)
 
-
-
-#    while len(openSet) > 0:
-#        currState = openSet.pop()
-#        print("ekana pop to ", end = ' ')
-#        currState.printState()
-#        if (len(currState.otherTeams) == 0):
-#            for i in currState.prevMatches:
-#                i.printMatch()
-#            return
-#        for it in currState.otherTeams:
-#            tmpState = currState
-#            retList = testAndReturn(tmpState)
-#            print("epestrepsa me ta eksis : ", end = ' ')
-#            for i in retList:
-#                i.printState()
-#                openSet.append(i)
+        sStop = stop[:]
+        for toStop in stop:
+            tmpStop = sStop[:]
+            tmpStop.remove(toStop)
+            retL = findTeamsThatCanPlay(toStop,cont)
+            pMatches = currState.prevMatches[:]
+            for it in retL:
+                tmpCont = cont[:]
+                toCont,ch = it
+                newH,newM = ch
+                tmpCont.remove(toCont)
+                if (stop[int(len(stop)-1)]==toStop and cont[int(len(cont)-1)]==toCont):
+                    tmp = currState.buf[:]
+                    hq.heappush(tmp,newH)
+                    newS = State(tmp,currState.rnd+1,pMatches+[newM],[])
+                    #newS = State(currState.buf+[newH],currState.rnd+1,pMatches+[newM],[])
+                else:
+                    tmp = currState.buf[:]
+                    hq.heappush(tmp,newH)
+                    newS = State(tmpStop+tmpCont,currState.rnd,pMatches+[newM],tmp)
+                    #newS = State(tmpStop+tmpCont,currState.rnd,pMatches+[newM],currState.buf+[newH])
+                hq.heappush(openSet,newS)
 
 
-#    for i in currState.prevMatches:
-#        i.printMatch()
+
+
+
+
+
+
+
+
 
 if __name__ =="__main__":
     if len(sys.argv) < 2:
