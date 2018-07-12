@@ -23,7 +23,6 @@ class Team():
             return True
         else:
             return False
-
     def __lt__(self,other):
         #return (self.matches+self.goals + self.fails) < (other.matches +other.goals+other.fails)
         if (self.matches != other.matches):
@@ -33,7 +32,6 @@ class Team():
         if ( self.goals != other.goals):
             return self.goals < other.goals
         return self.name < other.name
-
 
 class Match():
 
@@ -216,15 +214,18 @@ def main(argv):
             tmpStop = sStop[:]
             tmpStop.remove(toStop)
             pMatches = currState.prevMatches[:]
+            he = retL[-1]
+            a,b = he
             for it in retL:
                 tmpCont = cont[:]
                 toCont,ch = it
                 newH,newM = ch
                 tmpCont.remove(toCont)
-                if (stop[-1]==toStop and cont[-1]==toCont):
+                if (stop[-1]==toStop and a==toCont):
+                #if (stop[-1]==toStop and cont[-1]==toCont):
                     tmp = currState.buf[:]
                     hq.heappush(tmp,newH)
-                    tmp.reverse()
+                    #tmp.reverse()
                     newS = State(tmp,currState.rnd+1,pMatches+[newM],[])
                 else:
                     tmp = currState.buf[:]
@@ -233,7 +234,7 @@ def main(argv):
                     #tmp.reverse()
                     tmp1 = tmpStop+tmpCont
                     hq.heapify(tmp1)
-                    tmp1.reverse()
+                    #tmp1.reverse()
                     newS = State(tmp1,currState.rnd,pMatches+[newM],tmp)
                 hq.heappush(openSet,newS)
 
