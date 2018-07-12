@@ -221,7 +221,7 @@ def main(argv):
                 toCont,ch = it
                 newH,newM = ch
                 tmpCont.remove(toCont)
-                if (stop[int(len(stop)-1)]==toStop and cont[int(len(cont)-1)]==toCont):
+                if (stop[-1]==toStop and cont[-1]==toCont):
                     tmp = currState.buf[:]
                     hq.heappush(tmp,newH)
                     tmp.reverse()
