@@ -190,11 +190,12 @@ def main(argv):
     openSet.append(root)
 
     allL = list()
+    finalRnd = int(math.log(N,2))
     while openSet:
 
         currState = hq.heappop(openSet)
 
-        if (currState.rnd == int(math.log(N,2)) and len(currState.prevMatches) == N - 2 and len(currState.otherTeams)==2):
+        if (len(currState.prevMatches) == N - 2 and currState.rnd == finalRnd and len(currState.otherTeams)==2):
             newM = playTelikos(currState.otherTeams[0],currState.otherTeams[1])
             if (newM is None):
                 continue
@@ -205,6 +206,7 @@ def main(argv):
                 return
 
         stop,cont = returnTeams(currState.otherTeams)
+
 
         sStop = stop[:]
         for toStop in reversed(stop):
