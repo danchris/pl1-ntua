@@ -64,7 +64,8 @@ returnTeams([team(N,M,G,F)|T],InitS,InitC,Stop,Cont):-
 returnNewStates(_,[],_,_,_,_,_,R,R):-!.
 returnNewStates(Rnd,[ToStop|T1],Cont,Prev,Buf,Stop,LastStop,Init,Return):-
     findTeamsThatCanPlay(ToStop,Cont,[],TeamsThatCanPlay),
-    removeThis(ToStop,Stop,[],TmpStop),
+    select(ToStop,Stop,TmpStop),
+    %removeThis(ToStop,Stop,[],TmpStop),
     playMatches(ToStop,Prev,Buf,TmpStop,TeamsThatCanPlay,Cont,Rnd,LastStop,[],ReturnStates),
     append(Init,ReturnStates,Init1),
     returnNewStates(Rnd,T1,Cont,Prev,Buf,Stop,LastStop,Init1,Return),
@@ -73,7 +74,8 @@ returnNewStates(Rnd,[ToStop|T1],Cont,Prev,Buf,Stop,LastStop,Init,Return):-
 playMatches(_,_,_,_,[],_,_,_,R,R):-!.
 playMatches(ToStop,Prev,Buf,TmpStop,[ToCont|T],Cont,Rnd,LastStop,Init,Return):-
     myLast([ToCont|T],LastCont),
-    removeThis(ToCont,Cont,[],TmpCont),
+    select(ToCont,Cont,TmpCont),
+    %removeThis(ToCont,Cont,[],TmpCont),
     playMatch(ToCont,ToStop,NewM,NewCont),
     append(Prev,[NewM],Prev1),
     append(Buf,[NewCont],Buf1),
