@@ -1,10 +1,10 @@
 # Programming Languages
 
-*C
-*SML
-*Java
-*Python 3
-*SWI-Prolog
+* C
+* SML
+* Java
+* Python 3
+* SWI-Prolog
 
 # LICENSE
 MIT License
