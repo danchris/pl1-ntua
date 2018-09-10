@@ -25,8 +25,8 @@ testcases-*/
 *.zip
 
 # Example Files
-"3h Seira Askisewn"/read_mundial_SWI.pl
+3h\ Seira\ Askisewn/read_mundial_SWI.pl
 
 #C executable files
-"1h Seira Askisewn"/ex1/c/agora
-"2h Seira Askisewn"/ex2/c/doomsday
+1h\ Seira\ Askisewn/ex1/c/agora
+2h\ Seira\ Askisewn/ex2/c/doomsday
